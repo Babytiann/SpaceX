@@ -1,5 +1,9 @@
 node_modules
 dist
+dist-hd
+dist-pages
+.wrangler/
+.public-lite-*/
 .DS_Store
 # Local only: raw source downloads (2.8 GB), the Python venv for the texture scripts, screenshots
 .texvenv

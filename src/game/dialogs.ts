@@ -245,7 +245,7 @@ export class SettingsDialog {
     check('Bloom', 'bloom', 'Glow around bright objects');
     check('Milky Way photo', 'milkyWayPhoto', 'NASA sky survey instead of the model, inside the Milky Way');
 
-    // Music: a soundtrack the player brings, from a file on their disk.
+    // The built-in soundtrack can be replaced with a file from the player's disk.
     el('div', 'sect', body, 'Music');
     el('label', 'k', body, 'Track');
     const trackRow = el('div', 'v track', body);
@@ -283,7 +283,8 @@ export class SettingsDialog {
     this.vol.addEventListener('input', () => { music.setVolume(Number(this.vol.value)); this.volOut.textContent = `${Math.round(music.volume * 100)}%`; });
     this.vol.addEventListener('change', () => this.vol.blur());
     el('div', 'note', body, 'Choose an audio file or drop one on the window; it is kept in this browser. '
-      + 'Leave it empty to use the built-in soundtrack (<code>public/music/soundtrack.mp3</code>).');
+      + 'Music starts automatically; your browser may require a click or key press first. '
+      + (__LITE_BUILD__ ? 'Turning music off also stops its download.' : 'Remove your file to return to the built-in soundtrack.'));
     this.sync();
   }
 
@@ -302,7 +303,7 @@ export class SettingsDialog {
     const m = this.music;
     if (!this.trackName) return;
     this.trackName.textContent = m.track ?? 'None';
-    this.trackName.title = m.track ? (m.source === 'default' ? 'public/music/soundtrack.mp3' : m.track) : '';
+    this.trackName.title = m.track ? (m.source === 'default' ? 'Built-in soundtrack' : m.track) : '';
     this.trackName.classList.toggle('none', !m.track);
     this.removeBtn.hidden = m.source !== 'file';
     this.musicOn.checked = m.on;
@@ -389,6 +390,6 @@ export const HELP_HTML = `${titleBar('Controls')}
     ])}
   </div>
 </div>
-<p class="note">Music: the built-in soundtrack plays in a loop; choose another audio file in Settings (F4) or drop
-  one on the window.</p>
+<p class="note">Music starts automatically and loops. If your browser blocks it, click or press a key to begin.
+  Press M to turn it off, or choose another audio file in Settings (F4) or drop one on the window.</p>
 ${CREDITS_HTML}`;

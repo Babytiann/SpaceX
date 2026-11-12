@@ -121,6 +121,7 @@ export class Hud {
   /** Full property list (I) instead of the compact summary. */
   private infoFull = false;
   private readonly ctxMenu: HTMLElement;
+  private readonly musicPanel: HTMLElement;
   private lastPointer = 0;
   private idle = false;
   readonly music: MusicPlayer;
@@ -148,11 +149,47 @@ export class Hud {
     tool('info', 'info', 'Object info', 'I', () => this.toggleInfo());
     tool('labels', 'labels', 'Labels', 'Shift+L', () => this.flip('labels'));
     tool('orbits', 'orbits', 'Orbits', 'O', () => this.flip('orbits'));
-    tool('music', 'music', 'Music', 'M', () => this.music.toggle());
+    tool('music', 'music', 'Music controls', 'M', () => this.setMusicOpen(!!this.musicPanel.hidden));
     gap();
     tool('settings', 'settings', 'Settings', 'F4', () => this.toggle('settings'));
     tool('help', 'help', 'Controls', 'F1', () => this.toggle('help'));
     tool('hide', 'hide', 'Hide interface', '`', () => document.body.classList.add('ui-hidden'));
+
+    this.musicPanel = el('div', 'panel music-panel', root,
+      '<div class="title" id="music-title">Music</div>'
+      + '<div class="music-play"><label><input type="checkbox"> Play music</label><kbd>M</kbd></div>'
+      + '<div class="music-volume"><label for="music-volume">Volume</label><output for="music-volume"></output></div>'
+      + '<input id="music-volume" type="range" min="0" max="100" step="1">');
+    this.musicPanel.id = 'music-panel';
+    this.musicPanel.hidden = true;
+    this.musicPanel.setAttribute('role', 'dialog');
+    this.musicPanel.setAttribute('aria-labelledby', 'music-title');
+    const musicTool = this.tools.get('music')!;
+    musicTool.setAttribute('aria-haspopup', 'dialog');
+    musicTool.setAttribute('aria-controls', this.musicPanel.id);
+    musicTool.setAttribute('aria-expanded', 'false');
+    musicTool.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Tab') e.stopPropagation();
+    });
+    const musicOn = this.musicPanel.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    const volume = this.musicPanel.querySelector('input[type="range"]') as HTMLInputElement;
+    const volumeOut = this.musicPanel.querySelector('output')!;
+    musicOn.addEventListener('change', () => this.music.toggle());
+    volume.addEventListener('input', () => this.music.setVolume(Number(volume.value) / 100));
+    this.musicPanel.addEventListener('keydown', (e) => {
+      // Keep flight shortcuts out of the controls, including while a slider has focus.
+      e.stopPropagation();
+      if (e.key === 'Escape') { e.preventDefault(); this.setMusicOpen(false, true); }
+      if (e.code === 'KeyM' && !e.repeat && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        this.music.toggle();
+      }
+    });
+    window.addEventListener('pointerdown', (e) => {
+      if (!this.musicPanel.hidden && e.target instanceof Node
+        && !this.musicPanel.contains(e.target) && !musicTool.contains(e.target)) this.setMusicOpen(false);
+    }, true);
+    window.addEventListener('resize', () => { if (!this.musicPanel.hidden) this.positionMusic(); });
 
     // Top-left: the selected object.
     this.info = el('div', 'panel info', root);
@@ -209,7 +246,12 @@ export class Hud {
     this.music.onChange = () => {
       this.tools.get('music')?.classList.toggle('on', this.music.on && !!this.music.track);
       this.settingsDialog.syncMusic();
+      musicOn.checked = this.music.on;
+      volume.value = String(Math.round(this.music.volume * 100));
+      volumeOut.textContent = `${volume.value}%`;
+      volume.setAttribute('aria-valuetext', `${volume.value}%`);
     };
+    this.music.onChange();
     this.scenicDialog = new ScenicDialog(this.dialogs.scenic, SCENIC_SPOTS, (id) => actions.scenic(id));
     this.dialogs.help.innerHTML = HELP_HTML;
     for (const [name, d] of Object.entries(this.dialogs)) {
@@ -238,6 +280,7 @@ export class Hud {
   }
 
   open(name: PanelName): void {
+    this.setMusicOpen(false);
     // Centre dialogs replace one another; the browser strip is independent.
     if (name !== 'browser') for (const other of Object.keys(this.dialogs)) this.close(other as PanelName);
     this.root.classList.add(`open-${name}`);
@@ -257,11 +300,34 @@ export class Hud {
 
   /** Esc: close the topmost dialog. False when there was nothing to close. */
   closeTop(): boolean {
+    if (!this.musicPanel.hidden) { this.setMusicOpen(false, true); return true; }
     if (!this.ctxMenu.classList.contains('hidden')) { this.closeContext(); return true; }
     for (const name of ['search', 'scenic', 'help', 'settings', 'browser'] as PanelName[]) {
       if (this.isOpen(name)) { this.close(name); return true; }
     }
     return false;
+  }
+
+  private setMusicOpen(open: boolean, restoreFocus = false): void {
+    if (open) for (const name of Object.keys(this.dialogs)) this.close(name as PanelName);
+    if (!open && this.musicPanel.contains(document.activeElement)) (document.activeElement as HTMLElement).blur();
+    this.musicPanel.hidden = !open;
+    this.root.classList.toggle('open-music', open);
+    this.tools.get('music')!.setAttribute('aria-expanded', String(open));
+    this.lastPointer = performance.now();
+    this.boxesAt = -1e9;
+    if (open) {
+      this.positionMusic();
+      this.musicPanel.querySelector<HTMLInputElement>('input[type="range"]')!.focus();
+    } else if (restoreFocus) this.tools.get('music')!.focus();
+  }
+
+  private positionMusic(): void {
+    const button = this.tools.get('music')!.getBoundingClientRect();
+    const panel = this.musicPanel.getBoundingClientRect();
+    this.musicPanel.style.left = `${Math.max(12, button.left - panel.width - 8)}px`;
+    this.musicPanel.style.top = `${Math.max(12, Math.min(button.top, window.innerHeight - panel.height - 12))}px`;
+    this.boxesAt = -1e9;
   }
 
   /** Flip a boolean setting from the toolbar or a hotkey. */

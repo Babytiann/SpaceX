@@ -5,8 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:lite": "vite --mode lite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "deploy:cf": "npm run build && wrangler deploy",
+    "build:pages": "tsc --noEmit && vite build --mode lite --outDir dist-pages && node scripts/prepare-pages.mjs",
+    "deploy:pages": "npm run build:pages && wrangler pages deploy --cwd deploy/pages --branch feat/lite-version",
+    "test:cf": "node --test scripts/worker-range.test.mjs",
+    "build:hd": "tsc --noEmit && vite build --mode hd",
+    "preview": "vite preview",
+    "preview:hd": "vite preview --mode hd",
+    "assets:lite": "python3 scripts/textures/build-lite.py"
   },
   "dependencies": {
     "three": "^0.187.0"
@@ -15,6 +23,7 @@
     "@types/three": "^0.187.0",
     "puppeteer-core": "^25.16.0",
     "typescript": "^7.0.2",
-    "vite": "^8.3.7"
+    "vite": "^8.3.7",
+    "wrangler": "^4.160.0"
   }
 }

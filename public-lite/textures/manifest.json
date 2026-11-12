@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "generated": "2026-11-10",
+  "conventions": {
+    "projection": "equirectangular (plate carree), 2:1, north up",
+    "longitude": "-180..+180 degrees left to right, 0 degrees (prime meridian) at the image centre, east to the right",
+    "heightEncoding": "8-bit RGB PNG; v = R*256 + G (0..65535), B = 0; metres = minMeters + v / 65535 * (maxMeters - minMeters)",
+    "heightFiltering": "load height PNGs with NO colour-space conversion (linear / NoColorSpace), no premultiply, and decode R,G before any interpolation (or use NEAREST + manual bilinear) - linearly filtering the raw R and G channels separately gives wrong values at 256-step boundaries"
+  },
+  "bodies": {
+    "earth": {
+      "color": "earth_color.jpg",
+      "night": "earth_night.jpg",
+      "clouds": "earth_clouds.jpg",
+      "height": {
+        "file": "earth_height.png",
+        "minMeters": -10362,
+        "maxMeters": 6407,
+        "bits": 16,
+        "width": 1024,
+        "height": 512,
+        "datum": "EGM2008 geoid (mean sea level = 0 m)",
+        "includesBathymetry": true,
+        "surface": "ice surface (top of Antarctic/Greenland ice sheets)"
+      },
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ],
+        "night": [
+          2048,
+          1024
+        ],
+        "clouds": [
+          2048,
+          1024
+        ]
+      },
+      "notes": {
+        "clouds": "greyscale, white = cloud; use as alpha/intensity",
+        "night": "city lights on a dark blue (not pure black) land/ocean base; subtract/threshold the base if used as an emissive map"
+      }
+    },
+    "moon": {
+      "color": "moon_color.jpg",
+      "height": {
+        "file": "moon_height.png",
+        "minMeters": -9044,
+        "maxMeters": 10634,
+        "bits": 16,
+        "width": 1024,
+        "height": 512,
+        "datum": "sphere of radius 1737.4 km"
+      },
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "mars": {
+      "color": "mars_color.jpg",
+      "height": {
+        "file": "mars_height.png",
+        "minMeters": -8160,
+        "maxMeters": 21159,
+        "bits": 16,
+        "width": 1024,
+        "height": 512,
+        "datum": "MOLA areoid (mean radius 3389.5 km; equatorial 3396 km)"
+      },
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "mercury": {
+      "color": "mercury_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "venus": {
+      "color": "venus_color.jpg",
+      "surface": "venus_surface.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ],
+        "surface": [
+          2048,
+          1024
+        ]
+      },
+      "notes": {
+        "color": "cloud-top / atmosphere view",
+        "surface": "radar-derived surface, false colour"
+      }
+    },
+    "jupiter": {
+      "color": "jupiter_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "saturn": {
+      "color": "saturn_color.jpg",
+      "ring": {
+        "file": "saturn_ring.png",
+        "width": 4096,
+        "height": 250,
+        "format": "RGBA, straight (non-premultiplied) alpha",
+        "layout": "radial strip: u = 0 (left) is the inner edge, u = 1 (right) the outer edge; v is constant",
+        "approxInnerRadiusKm": 74500,
+        "approxOuterRadiusKm": 140200,
+        "radiiNote": "radii are an estimate (C ring inner edge to F ring) inferred from the positions of the Cassini division (u~0.70) and Encke gap (u~0.95); the first ~5% of the strip is fully transparent"
+      },
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "uranus": {
+      "color": "uranus_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "neptune": {
+      "color": "neptune_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "io": {
+      "color": "io_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "europa": {
+      "color": "europa_color.jpg",
+      "grayscale": true,
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "ganymede": {
+      "color": "ganymede_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "callisto": {
+      "color": "callisto_color.jpg",
+      "grayscale": true,
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      }
+    },
+    "titan": {
+      "color": "titan_color.jpg",
+      "grayscale": true,
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      },
+      "notes": {
+        "color": "surface albedo at 938 nm seen through the haze (not the orange visible-light appearance)"
+      }
+    },
+    "enceladus": {
+      "color": "enceladus_color.jpg",
+      "grayscale": true,
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      },
+      "notes": {
+        "color": "high-pass-filtered mosaic (relief detail, flat albedo), brightened to Enceladus' high albedo"
+      }
+    },
+    "triton": {
+      "color": "triton_color.jpg",
+      "sizes": {
+        "color": [
+          2048,
+          1024
+        ]
+      },
+      "notes": {
+        "color": "~39% of the surface (north) was never imaged; that area is a smooth synthetic fill"
+      }
+    }
+  },
+  "sky": {
+    "milkyway": "sky_milkyway.jpg",
+    "sizes": {
+      "milkyway": [
+        2048,
+        1024
+      ]
+    },
+    "coordinates": "galactic",
+    "projection": "equirectangular; galactic centre (l = 0, b = 0) at the image centre; north galactic pole at the top; galactic longitude increases to the LEFT (the sky as seen from inside the sphere)",
+    "encoding": "sRGB, tone-mapped from linear EXR with y = 1 - exp(-2 x)",
+    "notes": {
+      "milkyway": "Milky Way glow built from faint Gaia stars; the bright Hipparcos/Tycho stars are omitted, so engine-drawn star points can be layered on top"
+    }
+  },
+  "credits": "CREDITS.md",
+  "profile": "lite",
+  "processing": "JPEG: max width 2048, Q82; height: 1024x512, decoded BOX average, original min/max"
+}
